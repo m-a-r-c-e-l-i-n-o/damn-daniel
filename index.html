@@ -38,7 +38,12 @@
             <div class="notification">
                 <h4>Hello!</h4>
                 <p>
-                Welcome to "You The Man". Sit back, relax and press next.
+                    Welcome to "You The Man". Sit back, relax and press next.
+                </p>
+                <p>
+                    Here we ask you to login to "Stack Exchange".
+                    If you don't see anything, it's deffinitely because
+                    you have a popup blocker enabled. Please disable it!
                 </p>
                 <button class="button-orange">Next</button>
             </div>
@@ -48,5 +53,25 @@
     <!-- End Document
     –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <script type='text/javascript' src='https://api.stackexchange.com/js/2.0/all.js'></script>
+    <script>
+        SE.init({
+            clientId: 7265,
+            key: 'Pw9D)judG8FE4tJR3qjUTA((',
+            channelUrl: 'http://m-a-r-c-e-l-i-n-o.github.io/blank.html',
+            complete: function (data) {
+                console.log(data, "gonna do it!")
+                SE.authenticate({
+                    success: function(data) {
+                        console.log(data)
+                    },
+                    error: function(data) {
+                        console.log(data)
+                    },
+                    scope: ['read_inbox'],
+                    networkUsers: true
+                });
+            }
+        });
+    </script>
 </body>
 </html>
