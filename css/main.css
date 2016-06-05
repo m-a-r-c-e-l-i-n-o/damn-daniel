@@ -1,0 +1,40 @@
+body {
+    color: #4E290B;
+    background-color: #222222;
+    background: repeating-linear-gradient(45deg, #2b2b2b 0%, #2b2b2b 10%, #222222 0%, #222222 50%) 0 / 15px 15px;
+}
+a {
+    color: #4E290B;
+}
+a:hover {
+    color: #8D4914;
+}
+table > tbody > tr > td, table > thead > tr > th {
+    border-bottom: 1px dashed #4E290B;
+}
+.title {
+    text-align: center;
+    font-size: 100px;
+    color: #FF9900;
+    text-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
+}
+.notification {
+    text-align: center;
+    padding: 20px;
+    border-radius: 5px;
+    background: #FF9900;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
+}
+.button.button-orange,
+button.button-orange,
+input[type="submit"].button-orange,
+input[type="reset"].button-orange,
+input[type="button"].button-orange {
+    color: #000;
+    background-color: #FFAF38;
+    border-color: #B26B00;
+}
+
+
+
+
