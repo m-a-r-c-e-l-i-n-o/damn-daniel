@@ -41,10 +41,17 @@
                     Welcome to "You The Man". Sit back, relax and press next.
                 </p>
                 <p>
-                    Here we ask you to login to "Stack Exchange".
-                    If you don't see anything, it's deffinitely because
-                    you have a popup blocker enabled. Please disable it!
+                    Great news! Authentication is not required. However, we will need a way of identifing you. Your Stack Overflow id would be ideal. This is public information and should
+                    be visible in your public profile. If you are logged in, this <a href="http://stackoverflow.com/users/current">link</a> should lead you there. Otherwise, please get to your profile by some other means (i.e. logging in). The id should be a sequence of numbers found in the url of the page between the word "users" and your username. Example:
+                    </br>
+                    http://stackoverflow.com/users/1666547/m-a-r-c-e-l-i-n-o
+                    </br>
+                    Here, the id would be: 1666547
                 </p>
+                <div>
+                    <label for="soid">Your S.O. user id: </label>
+                    <input id="soid" type="text" placeholder="0000000">
+                </div>
                 <button class="button-orange">Next</button>
             </div>
         </div>
@@ -60,16 +67,6 @@
             channelUrl: 'http://m-a-r-c-e-l-i-n-o.github.io/blank.html',
             complete: function (data) {
                 console.log(data, "gonna do it!")
-                SE.authenticate({
-                    success: function(data) {
-                        console.log(data)
-                    },
-                    error: function(data) {
-                        console.log(data)
-                    },
-                    scope: ['read_inbox'],
-                    networkUsers: true
-                });
             }
         });
     </script>
