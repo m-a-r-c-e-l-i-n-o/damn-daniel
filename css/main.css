@@ -12,19 +12,6 @@ a:hover {
 table > tbody > tr > td, table > thead > tr > th {
     border-bottom: 1px dashed #4E290B;
 }
-.title {
-    text-align: center;
-    font-size: 100px;
-    color: #FF9900;
-    text-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
-}
-.notification {
-    text-align: center;
-    padding: 20px;
-    border-radius: 5px;
-    background: #FF9900;
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
-}
 .button.button-orange,
 button.button-orange,
 input[type="submit"].button-orange,
@@ -34,12 +21,29 @@ input[type="button"].button-orange {
     background-color: #FFAF38;
     border-color: #B26B00;
 }
-
-#soid {
+#title-component {
+    margin-top: 25%;
+}
+#title-component > .title {
+    text-align: center;
+    font-size: 100px;
+    color: #FF9900;
+    text-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
+}
+#notification-component {
+    text-align: center;
+    padding: 20px;
+    border-radius: 5px;
+    background: #FF9900;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
+}
+#notification-component > .navigation > .back {
+    display: none;
+}
+#template-component {
+    display: none;
+}
+#soid-component > #soid-component-input {
     text-align: center;
     width: 120px;
 }
-
-
-
-

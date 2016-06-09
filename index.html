@@ -31,29 +31,44 @@
     <!-- Primary Page Layout
     –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <div class="container">
-        <div class="row" style="margin-top: 25%">
+        <div id="title-component" class="row" style="">
             <h1 class="title">YouTheMan</h1>
         </div>
-        <div class="row">
-            <div class="notification">
-                <h4>Hello!</h4>
-                <p>
-                    Welcome to "You The Man". Sit back, relax and press next.
-                </p>
-                <p>
-                    Great news! Authentication is not required. However, we will need a way of identifing you. Your Stack Overflow id would be ideal. This is public information and should
-                    be visible in your public profile. If you are logged in, this <a href="http://stackoverflow.com/users/current">link</a> should lead you there. Otherwise, please get to your profile by some other means (i.e. logging in). The id should be a sequence of numbers found in the url of the page between the word "users" and your username. Example:
-                    </br>
-                    http://stackoverflow.com/users/1666547/m-a-r-c-e-l-i-n-o
-                    </br>
-                    Here, the id would be: 1666547
-                </p>
-                <div>
-                    <label for="soid">Your S.O. user id: </label>
-                    <input id="soid" type="text" placeholder="0000000">
-                </div>
-                <button class="button-orange">Next</button>
+        <div id="notification-component" class="row">
+            <div class="message">
             </div>
+            <div class="navigation row">
+                <button class="next button-orange">Next</button>
+                <button class="back button-orange">Back</button>
+            </div>
+        </div>
+    </div>
+    <div id="template-component">
+        <div class="template">
+            <h4>Hello!</h4>
+            <p>
+                Welcome to "You The Man". Sit back, relax and press next.
+            </p>
+        </div>
+        <div class="template">
+            <h4>Good news!</h4>
+            <p>
+                Authentication is not required! But... we'll need a way of identifing you. Your Stack Overflow id would be ideal for this. It's publicly available and really easy to grab right from your profile. If you are logged in, this <a href="http://stackoverflow.com/users/current">link</a> should lead you there. Otherwise, please get to your profile by some other means. The id should be a sequence of numbers found in the url of the page between the word "users" and your username. Example:
+                </br>
+                http://stackoverflow.com/users/1666547/m-a-r-c-e-l-i-n-o
+                </br>
+                Here, the id would be: 1666547
+            </p>
+            <div id="soid-component">
+                <label for="soid-component-input">Your S.O. user id: </label>
+                <input id="soid-component-input" type="text" placeholder="0000000">
+            </div>
+        </div>
+        <div class="template">
+            <h4>All set!</h4>
+            <p>
+                Thanks.
+            </p>
         </div>
     </div>
 
@@ -61,6 +76,66 @@
     –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <script type='text/javascript' src='https://api.stackexchange.com/js/2.0/all.js'></script>
     <script>
+        var NotificationSystem = (function (Global, Document) {
+            return {
+                nextTemplateID: -1,
+                messageContainer: null,
+                templateContainer: null,
+                templateCount: 0,
+                nextButton: null,
+                backButton: null,
+                init: function () {
+                    var notification = Document.getElementById('notification-component')
+                    this.messageContainer = notification.children[0]
+                    this.templateContainer = Document.getElementById('template-component')
+                    this.templateCount = this.templateContainer.children.length
+                    this.nextButton = notification.children[1].children[0]
+                    this.backButton = notification.children[1].children[1]
+                    this.attachNavigationEvents(this.nextButton, this.backButton)
+                    this.nextTemplate()
+                },
+                attachNavigationEvents: function (next, back) {
+                    next.addEventListener('click', this.nextTemplate.bind(this))
+                    back.addEventListener('click', this.prevTemplate.bind(this))
+                },
+                nextTemplate: function () {
+                    var html = this.nextTemplateHTML()
+                    this.messageContainer.innerHTML = html
+                    this.toggleNavigationButtons()
+                },
+                prevTemplate: function () {
+                    var html = this.prevTemplateHTML()
+                    this.messageContainer.innerHTML = html
+                    this.toggleNavigationButtons()
+                },
+                toggleNavigationButtons: function () {
+                    if (this.nextTemplateID === this.templateCount - 1) {
+                        this.nextButton.style.display = 'none'
+                        this.backButton.style.display = 'none'
+                    }
+                    if (this.nextTemplateID === 0) {
+                        this.backButton.style.display = 'none'
+                    }
+                    if (this.nextTemplateID === 1) {
+                        this.backButton.style.display = 'inline'
+                    }
+                },
+                nextTemplateHTML: function () {
+                    var templates = this.templateContainer.children
+                    if (typeof templates[this.nextTemplateID + 1] === 'undefined') {
+                        return null
+                    }
+                    return templates[++this.nextTemplateID].innerHTML
+                },
+                prevTemplateHTML: function () {
+                    var templates = this.templateContainer.children
+                    if (typeof templates[this.nextTemplateID - 1] === 'undefined') {
+                        return null
+                    }
+                    return templates[--this.nextTemplateID].innerHTML
+                },
+            }
+        }(window, document))
         SE.init({
             clientId: 7265,
             key: 'Pw9D)judG8FE4tJR3qjUTA((',
@@ -69,6 +144,7 @@
                 console.log(data, "gonna do it!")
             }
         });
+        NotificationSystem.init()
     </script>
 </body>
 </html>
