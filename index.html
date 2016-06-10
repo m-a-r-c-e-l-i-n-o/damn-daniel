@@ -61,7 +61,7 @@
             </p>
             <div id="soid-component">
                 <label for="soid-component-input">Your S.O. user id: </label>
-                <input id="soid-component-input" type="text" placeholder="0000000">
+                <input id="soid-component-input" type="text" placeholder="0000000" value="1666547">
             </div>
         </div>
         <div class="template">
@@ -76,6 +76,98 @@
     –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <script type='text/javascript' src='https://api.stackexchange.com/js/2.0/all.js'></script>
     <script>
+        var ReputationSystem = (function (Global, Document) {
+            function getNowUTCDate() {
+                var now = new Date
+                return Date.UTC(
+                    now.getUTCFullYear(),
+                    now.getUTCMonth(),
+                    now.getUTCDate(),
+                    now.getUTCHours(),
+                    now.getUTCMinutes(),
+                    now.getUTCSeconds(),
+                    now.getUTCMilliseconds()
+                )
+            }
+            function ReputationSystem(soid) {
+                this.api  = 'https://api.stackexchange.com/2.2/users/'
+                this.api += soid
+                this.api += '/reputation?site=stackoverflow'
+                this.lastCheck = getNowUTCDate()
+                this.quota = 1
+                this.rep = -Infinity
+                this.updateReputation()
+            }
+            ReputationSystem.prototype = {
+                updateReputation: function () {
+                    var fromNow = this.lastCheck
+                    var toMidnight = new Date().setUTCHours(23,59,59,0)
+                    var api = this.api
+                    api += '&fromdate=' + Math.round(fromNow/1000)
+                    api += '&todate=' + Math.round(toMidnight/1000)
+
+                    fetch(api)
+                    .then(this.responseToJSON.bind(this))
+                    .then(this.recalculateInterval.bind(this))
+                    .then(this.checkForNewPoints.bind(this))
+                    .then(this.playSound.bind(this))
+                },
+                responseToJSON: function (response) {
+                    return response.json()
+                },
+                recalculateInterval: function (response) {
+                    var fromNow = this.lastCheck
+                    var toMidnight = new Date().setUTCHours(23,59,59,0)
+                    var millisecondsLeft = toMidnight - fromNow
+                    this.quota = response.quota_remaining || 0
+                    var rate = Math.floor(millisecondsLeft/this.quota)
+
+                    if (rate < 5000 || rate === Infinity) {
+                        rate = 5000
+                    }
+
+                    console.log('Now:', fromNow)
+                    console.log('Midnight:', toMidnight)
+                    console.log('Difference:', toMidnight - fromNow)
+                    console.log('Rate:', rate)
+                    console.log('Response:', response)
+
+                    clearInterval(this.interval)
+                    this.interval = setInterval(
+                        this.updateReputation.bind(this),
+                        rate
+                    )
+                    return response
+                },
+                checkForNewPoints: function(response) {
+                    var newRep = this.getReputationChange(response.items)
+                    if (newRep > this.rep) {
+                        this.rep = newRep
+                        this.lastCheck = getNowUTCDate()
+                        return true
+                    }
+                    return false
+                },
+                playSound: function(play) {
+                    if (play) {
+                        console.log('#########################################')
+                        console.log('#########################################')
+                        console.log('You Da Man!')
+                        console.log('#########################################')
+                        console.log('#########################################')
+                    }
+                    console.log('Hello from playSound!')
+                },
+                getReputationChange: function (items) {
+                    return items.reduce((prev, curr) =>
+                        prev + Number(curr.reputation_change),
+                        0
+                    )
+                }
+            }
+            return ReputationSystem
+        }(window, document))
+
         var NotificationSystem = (function (Global, Document) {
             return {
                 nextTemplateID: -1,
@@ -84,7 +176,7 @@
                 templateCount: 0,
                 nextButton: null,
                 backButton: null,
-                init: function () {
+                init: function (opts) {
                     var notification = Document.getElementById('notification-component')
                     this.messageContainer = notification.children[0]
                     this.templateContainer = Document.getElementById('template-component')
@@ -92,6 +184,7 @@
                     this.nextButton = notification.children[1].children[0]
                     this.backButton = notification.children[1].children[1]
                     this.attachNavigationEvents(this.nextButton, this.backButton)
+                    this.onNext = opts.onNext
                     this.nextTemplate()
                 },
                 attachNavigationEvents: function (next, back) {
@@ -99,6 +192,11 @@
                     back.addEventListener('click', this.prevTemplate.bind(this))
                 },
                 nextTemplate: function () {
+                    if (typeof this.onNext === 'function') {
+                        if (this.onNext(this.nextTemplateID + 1) === false) {
+                            return false
+                        }
+                    }
                     var html = this.nextTemplateHTML()
                     this.messageContainer.innerHTML = html
                     this.toggleNavigationButtons()
@@ -139,12 +237,23 @@
         SE.init({
             clientId: 7265,
             key: 'Pw9D)judG8FE4tJR3qjUTA((',
-            channelUrl: 'http://m-a-r-c-e-l-i-n-o.github.io/blank.html',
+            channelUrl: 'http://127.0.0.1:8080/blank.html',
             complete: function (data) {
                 console.log(data, "gonna do it!")
             }
         });
-        NotificationSystem.init()
+        NotificationSystem.init({
+            onNext: function (id) {
+                if (id === 2) {
+                    var soid = document.getElementById('soid-component-input').value
+                    if (!soid || soid.length < 4) {
+                        alert('Please provide a valid Stack Overflow id!')
+                        return false
+                    }
+                    new ReputationSystem(soid)
+                }
+            }
+        })
     </script>
 </body>
 </html>
