@@ -32,7 +32,7 @@
     –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <div class="container">
         <div id="title-component" class="row" style="">
-            <h1 class="title">YouTheMan</h1>
+            <h1 class="title">DamnDaniel</h1>
         </div>
         <div id="notification-component" class="row">
             <div class="message">
@@ -43,17 +43,20 @@
             </div>
         </div>
     </div>
+    <div id="sound-box"></div>
     <div id="template-component">
         <div class="template">
-            <h4>Hello!</h4>
+            <h4>Welcome!</h4>
             <p>
-                Welcome to "You The Man". Sit back, relax and press next.
+                Turn on your speakers...</br>
+                You're about to experience one of the most gratifying parts of being a software engineer — hearing a "Damn Daniel!" compliment everytime you earn rep points on <a href="http://stackoverflow.com/">StackOverflow</a>.</br>
+                Sit back, relax and press next.
             </p>
         </div>
         <div class="template">
             <h4>Good news!</h4>
             <p>
-                Authentication is not required! But... we'll need a way of identifing you. Your Stack Overflow id would be ideal for this. It's publicly available and really easy to grab right from your profile. If you are logged in, this <a href="http://stackoverflow.com/users/current">link</a> should lead you there. Otherwise, please get to your profile by some other means. The id should be a sequence of numbers found in the url of the page between the word "users" and your username. Example:
+                Authentication is not required! But... we'll need a way of identifing you. Your Stack Overflow id would be ideal for this. It's publicly available and really easy to grab right from your profile. If you are logged in, this <a href="http://stackoverflow.com/users/current">link</a> should lead you there. Otherwise, please get to your Stack Overflow profile by some other means. The id should be a sequence of numbers found in the url of the page between the word "users" and your username. Example:
                 </br>
                 http://stackoverflow.com/users/1666547/m-a-r-c-e-l-i-n-o
                 </br>
@@ -65,9 +68,9 @@
             </div>
         </div>
         <div class="template">
-            <h4>All set!</h4>
+            <h4>All set, thanks!</h4>
             <p>
-                Thanks.
+                For this point on, you'll hear a "Damn Daniel!" compliment everytime you earn rep points!
             </p>
         </div>
     </div>
@@ -77,25 +80,14 @@
     <script type='text/javascript' src='https://api.stackexchange.com/js/2.0/all.js'></script>
     <script>
         var ReputationSystem = (function (Global, Document) {
-            function getNowUTCDate() {
-                var now = new Date
-                return Date.UTC(
-                    now.getUTCFullYear(),
-                    now.getUTCMonth(),
-                    now.getUTCDate(),
-                    now.getUTCHours(),
-                    now.getUTCMinutes(),
-                    now.getUTCSeconds(),
-                    now.getUTCMilliseconds()
-                )
-            }
             function ReputationSystem(soid) {
                 this.api  = 'https://api.stackexchange.com/2.2/users/'
                 this.api += soid
                 this.api += '/reputation?site=stackoverflow'
-                this.lastCheck = getNowUTCDate()
+                this.lastCheck = this.getNowUTCDate()
                 this.quota = 1
                 this.rep = -Infinity
+                this.soundBox = document.getElementById('sound-box')
                 this.updateReputation()
             }
             ReputationSystem.prototype = {
@@ -143,7 +135,7 @@
                     var newRep = this.getReputationChange(response.items)
                     if (newRep > this.rep) {
                         this.rep = newRep
-                        this.lastCheck = getNowUTCDate()
+                        this.lastCheck = this.getNowUTCDate()
                         return true
                     }
                     return false
@@ -152,16 +144,34 @@
                     if (play) {
                         console.log('#########################################')
                         console.log('#########################################')
-                        console.log('You Da Man!')
+                        console.log('Damn Daniel!')
                         console.log('#########################################')
                         console.log('#########################################')
+                        var filename = Math.floor((Math.random() * 4) + 1)
+                        this.soundBox.innerHTML =
+                            '<audio autoplay="autoplay">' +
+                                '<source src="/sounds/damn-daniel-' + filename + '.mp3" type="audio/mpeg" />' +
+                                '<source src="/sounds/damn-daniel-' + filename + '.ogg" type="audio/ogg" />' +
+                                '<embed hidden="true" autostart="true" loop="false" src="/sounds/' + filename +'.mp3" />' +
+                            '</audio>'
                     }
-                    console.log('Hello from playSound!')
                 },
                 getReputationChange: function (items) {
                     return items.reduce((prev, curr) =>
                         prev + Number(curr.reputation_change),
                         0
+                    )
+                },
+                getNowUTCDate: function () {
+                    var now = new Date
+                    return Date.UTC(
+                        now.getUTCFullYear(),
+                        now.getUTCMonth(),
+                        now.getUTCDate(),
+                        now.getUTCHours(),
+                        now.getUTCMinutes(),
+                        now.getUTCSeconds(),
+                        now.getUTCMilliseconds()
                     )
                 }
             }
@@ -234,26 +244,27 @@
                 },
             }
         }(window, document))
+
         SE.init({
             clientId: 7265,
             key: 'Pw9D)judG8FE4tJR3qjUTA((',
-            channelUrl: 'http://127.0.0.1:8080/blank.html',
+            channelUrl: 'http://m-a-r-c-e-l-i-n-o.github.io/blank.html',
             complete: function (data) {
-                console.log(data, "gonna do it!")
-            }
-        });
-        NotificationSystem.init({
-            onNext: function (id) {
-                if (id === 2) {
-                    var soid = document.getElementById('soid-component-input').value
-                    if (!soid || soid.length < 4) {
-                        alert('Please provide a valid Stack Overflow id!')
-                        return false
+                NotificationSystem.init({
+                    onNext: function (id) {
+                        if (id === 2) {
+                            var soid = document.getElementById('soid-component-input').value
+                            if (!soid || soid.length < 4) {
+                                alert('Please provide a valid Stack Overflow id!')
+                                return false
+                            }
+                            new ReputationSystem(soid)
+                        }
                     }
-                    new ReputationSystem(soid)
-                }
+                })
             }
         })
+
     </script>
 </body>
 </html>
