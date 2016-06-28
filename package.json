@@ -1,0 +1,13 @@
+{
+  "name": "damn-daniel",
+  "version": "0.0.0",
+  "description": "Damn Daniel!",
+  "scripts": {
+    "sync": "s3-cli sync ./dist s3://damndaniel.site/ --delete-removed --acl-public"
+  },
+  "author": "m-a-r-c-e-l-i-n-o <me@marceli.no>",
+  "license": "MIT",
+  "dependencies": {
+    "s3-cli": "^0.13.0"
+  }
+}
