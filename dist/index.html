@@ -86,7 +86,7 @@
                 this.api += '/reputation?site=stackoverflow'
                 this.lastCheck = this.getNowUTCDate()
                 this.quota = 1
-                this.rep = -Infinity
+                this.rep = 0
                 this.soundBox = document.getElementById('sound-box')
                 this.updateReputation()
             }
@@ -133,8 +133,7 @@
                 },
                 checkForNewPoints: function(response) {
                     var newRep = this.getReputationChange(response.items)
-                    if (newRep > this.rep) {
-                        this.rep = newRep
+                    if (this.rep < (this.rep += newRep)) {
                         this.lastCheck = this.getNowUTCDate()
                         return true
                     }
