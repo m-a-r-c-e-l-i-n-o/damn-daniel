@@ -77,13 +77,14 @@
 
     <!-- End Document
     –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-    <script type='text/javascript' src='https://api.stackexchange.com/js/2.0/all.js'></script>
     <script>
         var ReputationSystem = (function (Global, Document) {
             function ReputationSystem(soid) {
+                const key = 'Pw9D)judG8FE4tJR3qjUTA(('
                 this.api  = 'https://api.stackexchange.com/2.2/users/'
                 this.api += soid
                 this.api += '/reputation?site=stackoverflow'
+                this.api += '&key=' + key
                 this.lastCheck = this.getNowUTCDate()
                 this.quota = 1
                 this.rep = 0
@@ -244,26 +245,18 @@
             }
         }(window, document))
 
-        SE.init({
-            clientId: 7265,
-            key: 'Pw9D)judG8FE4tJR3qjUTA((',
-            channelUrl: 'http://damndaniel.site/blank.html',
-            complete: function (data) {
-                NotificationSystem.init({
-                    onNext: function (id) {
-                        if (id === 2) {
-                            var soid = document.getElementById('soid-component-input').value
-                            if (!soid || soid.length < 4) {
-                                alert('Please provide a valid Stack Overflow id!')
-                                return false
-                            }
-                            new ReputationSystem(soid)
-                        }
+        NotificationSystem.init({
+            onNext: function (id) {
+                if (id === 2) {
+                    var soid = document.getElementById('soid-component-input').value
+                    if (!soid || soid.length < 4) {
+                        alert('Please provide a valid Stack Overflow id!')
+                        return false
                     }
-                })
+                    new ReputationSystem(soid)
+                }
             }
         })
-
     </script>
 </body>
 </html>
