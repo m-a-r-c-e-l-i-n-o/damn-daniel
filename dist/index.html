@@ -259,7 +259,9 @@
         }
         config.onNext = function (instance) {
             if (instance.nextTemplateID === 2) {
-                var soid = document.getElementById('soid-component-input').value
+                var soid =
+                    store.get('soid') ||
+                    document.getElementById('soid-component-input').value
                 if (!soid || soid.length < 4) {
                     alert('Please provide a valid Stack Overflow id!')
                     return false
@@ -270,6 +272,7 @@
                 instance.nextButton.style.display = 'none'
                 instance.config.onPrev = (function (reputationSystemInstance) {
                     return function () {
+                        store.remove('soid')
                         instance.config.onPrev = null
                         instance.backButton.textContent = 'Back'
                         instance.nextButton.style.display = 'inline'
