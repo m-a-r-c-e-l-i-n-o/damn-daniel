@@ -77,6 +77,7 @@
 
     <!-- End Document
     –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <script type='text/javascript' src='/js/persist-min.js'></script>
     <script>
         var ReputationSystem = (function (Global, Document) {
             function ReputationSystem(soid) {
@@ -187,6 +188,9 @@
                 nextButton: null,
                 backButton: null,
                 init: function (opts) {
+                    if (typeof opts.id === 'string') {
+                        this.nextTemplateID = 1
+                    }
                     var notification = Document.getElementById('notification-component')
                     this.messageContainer = notification.children[0]
                     this.templateContainer = Document.getElementById('template-component')
@@ -245,7 +249,9 @@
             }
         }(window, document))
 
-        NotificationSystem.init({
+        var store = new Persist.Store('DamnDaniel')
+        var config = {
+            id: store.get('soid'),
             onNext: function (id) {
                 if (id === 2) {
                     var soid = document.getElementById('soid-component-input').value
@@ -253,10 +259,12 @@
                         alert('Please provide a valid Stack Overflow id!')
                         return false
                     }
+                    store.set('soid', soid)
                     new ReputationSystem(soid)
                 }
             }
-        })
+        }
+        NotificationSystem.init(config)
     </script>
 </body>
 </html>
