@@ -212,12 +212,10 @@
                     back.addEventListener('click', this.prevTemplate.bind(this))
                 },
                 nextTemplate: function () {
+                    this.nextTemplateID++
                     if (typeof this.config.onNext === 'function') {
-                        var result = this.config.onNext(
-                            this.nextTemplateID + 1,
-                            this
-                        )
-                        if (result === false) {
+                        if (this.config.onNext(this) === false) {
+                            this.nextTemplateID--
                             return false
                         }
                     }
@@ -225,12 +223,10 @@
                     this.messageContainer.innerHTML = html
                 },
                 prevTemplate: function () {
+                    this.nextTemplateID--
                     if (typeof this.config.onPrev === 'function') {
-                        var result = this.config.onPrev(
-                            this.nextTemplateID - 1,
-                            this
-                        )
-                        if (result === false) {
+                        if (this.config.onPrev(this) === false) {
+                            this.nextTemplateID++
                             return false
                         }
                     }
@@ -239,29 +235,30 @@
                 },
                 nextTemplateHTML: function () {
                     var templates = this.templateContainer.children
-                    if (typeof templates[this.nextTemplateID + 1] === 'undefined') {
+                    if (typeof templates[this.nextTemplateID] === 'undefined') {
+                        this.nextTemplateID--
                         return null
                     }
-                    return templates[++this.nextTemplateID].innerHTML
+                    return templates[this.nextTemplateID].innerHTML
                 },
                 prevTemplateHTML: function () {
                     var templates = this.templateContainer.children
-                    if (typeof templates[this.nextTemplateID - 1] === 'undefined') {
+                    if (typeof templates[this.nextTemplateID] === 'undefined') {
+                        this.nextTemplateID++
                         return null
                     }
-                    return templates[--this.nextTemplateID].innerHTML
-                },
+                    return templates[this.nextTemplateID].innerHTML
+                }
             }
         }(window, document))
 
         var store = new Persist.Store('DamnDaniel')
-        store.remove('soid')
         var config = {}
         if (store.get('soid')) {
             config.startAt = 1
         }
-        config.onNext = function (currentID, instance) {
-            if (currentID === 2) {
+        config.onNext = function (instance) {
+            if (instance.nextTemplateID === 2) {
                 var soid = document.getElementById('soid-component-input').value
                 if (!soid || soid.length < 4) {
                     alert('Please provide a valid Stack Overflow id!')
@@ -280,13 +277,13 @@
                     }
                 }(new ReputationSystem(soid)))
             } else {
-                if (currentID === instance.templateCount - 1) {
+                if (instance.nextTemplateID === instance.templateCount - 1) {
                     instance.nextButton.style.display = 'none'
                 }
-                if (currentID === 0) {
+                if (instance.nextTemplateID === 0) {
                     instance.backButton.style.display = 'none'
                 }
-                if (currentID === 1) {
+                if (instance.nextTemplateID === 1) {
                     instance.backButton.style.display = 'inline'
                     instance.nextButton.style.display = 'inline'
                 }
