@@ -82,8 +82,9 @@
         var ReputationSystem = (function (Global, Document) {
             function ReputationSystem(soid) {
                 const key = 'Pw9D)judG8FE4tJR3qjUTA(('
+                this.soid = soid
                 this.api  = 'https://api.stackexchange.com/2.2/users/'
-                this.api += soid
+                this.api += this.soid
                 this.api += '/reputation?site=stackoverflow'
                 this.api += '&key=' + key
                 this.lastCheck = this.getNowUTCDate()
@@ -91,8 +92,12 @@
                 this.rep = 0
                 this.soundBox = document.getElementById('sound-box')
                 this.updateReputation()
+                return this
             }
             ReputationSystem.prototype = {
+                stop: function(soid) {
+                    clearInterval(this.interval)
+                },
                 updateReputation: function () {
                     var fromNow = this.lastCheck
                     var toMidnight = new Date().setUTCHours(23,59,59,0)
@@ -120,6 +125,7 @@
                         rate = 5000
                     }
 
+                    console.log('ID:', this.soid)
                     console.log('Now:', fromNow)
                     console.log('Midnight:', toMidnight)
                     console.log('Difference:', toMidnight - fromNow)
@@ -188,8 +194,8 @@
                 nextButton: null,
                 backButton: null,
                 init: function (opts) {
-                    if (typeof opts.id === 'string') {
-                        this.nextTemplateID = 1
+                    if (typeof opts.startAt === 'number') {
+                        this.nextTemplateID = opts.startAt
                     }
                     var notification = Document.getElementById('notification-component')
                     this.messageContainer = notification.children[0]
@@ -198,7 +204,7 @@
                     this.nextButton = notification.children[1].children[0]
                     this.backButton = notification.children[1].children[1]
                     this.attachNavigationEvents(this.nextButton, this.backButton)
-                    this.onNext = opts.onNext
+                    this.config = opts
                     this.nextTemplate()
                 },
                 attachNavigationEvents: function (next, back) {
@@ -206,31 +212,30 @@
                     back.addEventListener('click', this.prevTemplate.bind(this))
                 },
                 nextTemplate: function () {
-                    if (typeof this.onNext === 'function') {
-                        if (this.onNext(this.nextTemplateID + 1) === false) {
+                    if (typeof this.config.onNext === 'function') {
+                        var result = this.config.onNext(
+                            this.nextTemplateID + 1,
+                            this
+                        )
+                        if (result === false) {
                             return false
                         }
                     }
                     var html = this.nextTemplateHTML()
                     this.messageContainer.innerHTML = html
-                    this.toggleNavigationButtons()
                 },
                 prevTemplate: function () {
+                    if (typeof this.config.onPrev === 'function') {
+                        var result = this.config.onPrev(
+                            this.nextTemplateID - 1,
+                            this
+                        )
+                        if (result === false) {
+                            return false
+                        }
+                    }
                     var html = this.prevTemplateHTML()
                     this.messageContainer.innerHTML = html
-                    this.toggleNavigationButtons()
-                },
-                toggleNavigationButtons: function () {
-                    if (this.nextTemplateID === this.templateCount - 1) {
-                        this.nextButton.style.display = 'none'
-                        this.backButton.style.display = 'none'
-                    }
-                    if (this.nextTemplateID === 0) {
-                        this.backButton.style.display = 'none'
-                    }
-                    if (this.nextTemplateID === 1) {
-                        this.backButton.style.display = 'inline'
-                    }
                 },
                 nextTemplateHTML: function () {
                     var templates = this.templateContainer.children
@@ -250,17 +255,40 @@
         }(window, document))
 
         var store = new Persist.Store('DamnDaniel')
-        var config = {
-            id: store.get('soid'),
-            onNext: function (id) {
-                if (id === 2) {
-                    var soid = document.getElementById('soid-component-input').value
-                    if (!soid || soid.length < 4) {
-                        alert('Please provide a valid Stack Overflow id!')
-                        return false
+        store.remove('soid')
+        var config = {}
+        if (store.get('soid')) {
+            config.startAt = 1
+        }
+        config.onNext = function (currentID, instance) {
+            if (currentID === 2) {
+                var soid = document.getElementById('soid-component-input').value
+                if (!soid || soid.length < 4) {
+                    alert('Please provide a valid Stack Overflow id!')
+                    return false
+                }
+                store.set('soid', soid)
+                instance.backButton.textContent = 'Reset Stack Overflow ID'
+                instance.backButton.style.display = 'inline'
+                instance.nextButton.style.display = 'none'
+                instance.config.onPrev = (function (reputationSystemInstance) {
+                    return function () {
+                        instance.config.onPrev = null
+                        instance.backButton.textContent = 'Back'
+                        instance.nextButton.style.display = 'inline'
+                        reputationSystemInstance.stop()
                     }
-                    store.set('soid', soid)
-                    new ReputationSystem(soid)
+                }(new ReputationSystem(soid)))
+            } else {
+                if (currentID === instance.templateCount - 1) {
+                    instance.nextButton.style.display = 'none'
+                }
+                if (currentID === 0) {
+                    instance.backButton.style.display = 'none'
+                }
+                if (currentID === 1) {
+                    instance.backButton.style.display = 'inline'
+                    instance.nextButton.style.display = 'inline'
                 }
             }
         }
